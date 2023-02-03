@@ -4,8 +4,27 @@ pragma solidity ^0.8.17;
 
 // Mission contract interface
 interface Mission {
-    function finish(address _user) external view returns (bool);
+    function finish() external pure returns (bool);
 }
+
+// library decentralizedQuest {
+//     enum OperatorType { AND, OR }
+//     enum Outcome { SBT, NFT, FT }
+//     // A struct to represent a node in the tree
+//     struct Node {
+//         bool isMission;
+//         uint256 missionId;
+//         OperatorType operatorType;
+//         uint8 leftNode;
+//         uint8 rightNode;
+//     }
+
+//     struct Quest {
+//         uint256 id;
+//         Node[] missionFormula;
+//         Outcome[] outcomes;
+//     }
+// }
 
 // Dquest contract
 contract Dquest {
@@ -19,7 +38,7 @@ contract Dquest {
     // A struct to represent a node in the tree
     struct Node {
         bool isMission;
-        uint8 missionId;
+        uint256 missionId;
         OperatorType operatorType;
         uint8 leftNode;
         uint8 rightNode;
@@ -63,7 +82,7 @@ contract Dquest {
     */
     function addNode(
         bool isMission,
-        uint8 missionId,
+        uint256 missionId,
         OperatorType operatorType,
         uint8 leftNode,
         uint8 rightNode
@@ -85,11 +104,11 @@ contract Dquest {
     function evaluateTree(
         uint8 nodeId,
         address user
-    ) private returns (bool) {
+    ) private view returns (bool) {
         Node memory node = nodes[nodeId];
         if (node.isMission) {
             Mission mission = Mission(missions[node.missionId]);
-            return mission.finish(user);
+            return mission.finish();
         } else {
             bool leftResult = evaluateTree(node.leftNode, user);
             bool rightResult = evaluateTree(node.rightNode, user);
@@ -102,8 +121,8 @@ contract Dquest {
     }
 
     // A function to evaluate the user's combination
-    function questDone(address user) public returns (bool) {
+    function questDone(address user) public view returns(bool) {
         // Return the result of the evaluation of the root node
-        return evaluateTree(0, user);
+        return (evaluateTree(0, user));
     }
 }
